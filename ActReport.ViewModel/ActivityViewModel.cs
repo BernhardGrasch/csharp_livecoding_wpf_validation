@@ -6,6 +6,7 @@ using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Input;
 
 namespace ActReport.ViewModel
@@ -24,10 +25,10 @@ namespace ActReport.ViewModel
         if (_cmdNewActivityCommand == null)
         {
           _cmdNewActivityCommand = new RelayCommand(
-            execute: _ =>
+            execute: async _ =>
             {
               _controller.ShowWindow(new NewActivityViewModel(_controller, _employee));
-              LoadActivities();
+              await LoadActivitiesAsync();
             },
             canExecute: _ => true);
         }
@@ -58,20 +59,20 @@ namespace ActReport.ViewModel
         if (_cmdDeleteActivityCommand == null)
         {
           _cmdDeleteActivityCommand = new RelayCommand(
-            execute: _ => DeleteActivity(CurrentActivity),
+            execute: async _ => await DeleteActivityAsync(CurrentActivity),
             canExecute: _ => CurrentActivity != null);
         }
         return _cmdDeleteActivityCommand;
       }
     }
 
-    private void DeleteActivity(Activity currentActivity)
+    private async Task DeleteActivityAsync(Activity currentActivity)
     {
       using IUnitOfWork uow = new UnitOfWork();
       uow.ActivityRepository.Delete(currentActivity);
-      uow.Save();
+      await uow.SaveAsync();
 
-      LoadActivities();
+      await LoadActivitiesAsync();
     }
 
     public ObservableCollection<Activity> Activities
@@ -99,20 +100,20 @@ namespace ActReport.ViewModel
     public ActivityViewModel(IController controller, Employee employee) : base(controller)
     {
       _employee = employee;
-      LoadActivities();
+      LoadActivitiesAsync().GetAwaiter().GetResult();
     }
 
-    private void LoadActivities()
+    private async Task LoadActivitiesAsync()
     {
       IUnitOfWork uow = new UnitOfWork();
-      Activities = new ObservableCollection<Activity>(uow.ActivityRepository.Get(
+      Activities = new ObservableCollection<Activity>(await uow.ActivityRepository.GetAsync(
         filter: x => x.Employee_Id == _employee.Id,
         orderBy: coll => coll.OrderBy(activity => activity.Date).ThenBy(activity => activity.StartTime)));
 
       Activities.CollectionChanged += Activities_CollectionChanged;
     }
 
-    private void Activities_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+    private async void Activities_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
     {
       if (e.Action == NotifyCollectionChangedAction.Remove)
       {
@@ -121,13 +122,13 @@ namespace ActReport.ViewModel
         {
           uow.ActivityRepository.Delete((item as Activity).Id);
         }
-        uow.Save();
+        await uow.SaveAsync();
       }
     }
 
     public override IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
     {
-      return new ValidationResult[0];
+      return Enumerable.Empty<ValidationResult>();
     }
   }
 }

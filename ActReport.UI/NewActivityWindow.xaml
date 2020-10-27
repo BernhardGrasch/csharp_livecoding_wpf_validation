@@ -41,7 +41,8 @@
       <Label Grid.Row="4" Grid.Column="0">Tätigkeit:</Label>
       <TextBox Grid.Row="4" Grid.Column="1" Text="{Binding Path=ActivityText, UpdateSourceTrigger=PropertyChanged}" />
 
-      <Label Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="2" Style="{StaticResource ResourceKey=ErrorCaptionStyle}"
+      <Label Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="2" 
+             Style="{StaticResource ResourceKey=ErrorCaptionStyle}"
              Content="{Binding DbError}" />
 
 

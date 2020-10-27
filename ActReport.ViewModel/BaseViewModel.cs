@@ -124,7 +124,7 @@ namespace ActReport.ViewModel
     }
 
     /// <summary>
-    /// Sind alle Properties valide, gibt es in der Errorscollection keine Einträge
+    /// Sind alle Properties valide, gibt es in der Errors-Collection keine Einträge
     /// </summary>
     public bool IsValid
     {

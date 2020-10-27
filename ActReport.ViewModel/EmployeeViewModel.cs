@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Input;
 
 namespace ActReport.ViewModel
@@ -34,6 +35,8 @@ namespace ActReport.ViewModel
       }
     }
 
+    [MinLength(2, ErrorMessage = "Der Vorname muss mind. 2 Zeichen lang sein!")]
+    [MaxLength(50, ErrorMessage = "Der Vorname muss darf max. 50 Zeichen lang sein!")]
     public string FirstName
     {
       get => _firstName;
@@ -41,9 +44,12 @@ namespace ActReport.ViewModel
       {
         _firstName = value;
         OnPropertyChanged(nameof(FirstName));
+        Validate();
       }
     }
 
+    [MinLength(3, ErrorMessage = "Der Nachname muss mind. 3 Zeichen lang sein!")]
+    [MaxLength(75, ErrorMessage = "Der Nachname muss darf max. 50 Zeichen lang sein!")]
     public string LastName
     {
       get => _lastName;
@@ -51,6 +57,7 @@ namespace ActReport.ViewModel
       {
         _lastName = value;
         OnPropertyChanged(nameof(LastName));
+        Validate();
       }
     }
 
@@ -63,6 +70,7 @@ namespace ActReport.ViewModel
         FirstName = _selectedEmployee?.FirstName;
         LastName = _selectedEmployee?.LastName;
         OnPropertyChanged(nameof(SelectedEmployee));
+        Validate();
       }
     }
 
@@ -78,14 +86,14 @@ namespace ActReport.ViewModel
 
     public EmployeeViewModel(IController controller) : base(controller)
     {
-      LoadEmployees();
+      LoadEmployeesAsync().GetAwaiter().GetResult();
     }
 
-    private void LoadEmployees()
+    private async Task LoadEmployeesAsync()
     {
       using IUnitOfWork uow = new UnitOfWork();
-      var employees = uow.EmployeeRepository
-        .Get(orderBy: (coll) => coll.OrderBy(emp => emp.LastName))
+      var employees = (await uow.EmployeeRepository
+        .GetAsync(orderBy: (coll) => coll.OrderBy(emp => emp.LastName)))
         .ToList();
 
       Employees = new ObservableCollection<Employee>(employees);
@@ -100,17 +108,17 @@ namespace ActReport.ViewModel
         if (_cmdSaveChanges == null)
         {
           _cmdSaveChanges = new RelayCommand(
-            execute: _ =>
+            execute: async _ =>
             {
               using IUnitOfWork uow = new UnitOfWork();
               _selectedEmployee.FirstName = _firstName;
               _selectedEmployee.LastName = _lastName;
               uow.EmployeeRepository.Update(_selectedEmployee);
-              uow.Save();
+              await uow.SaveAsync();
 
-              LoadEmployees();
+              await LoadEmployeesAsync();
             },
-            canExecute: _ => _selectedEmployee != null);
+            canExecute: _ => IsValid && _selectedEmployee != null);
         }
 
         return _cmdSaveChanges;
@@ -120,7 +128,25 @@ namespace ActReport.ViewModel
 
     public override IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
     {
-      return new ValidationResult[0];
+      if (string.IsNullOrEmpty(FirstName))
+      {
+        yield return new ValidationResult(
+          "Der Vorname ist ein Pflichtfeld!",
+          new string[] { nameof(FirstName) });
+      }
+
+      if (string.IsNullOrEmpty(LastName))
+      {
+        yield return new ValidationResult(
+          "Der Nachname ist ein Pflichtfeld!",
+          new string[] { nameof(LastName) });
+      }
+      else if (LastName.Contains("-"))
+      {
+        yield return new ValidationResult(
+          "Der Nachname darf keinen Doppelnamen enthalten!",
+          new string[] { nameof(LastName) });
+      }
     }
   }
 }

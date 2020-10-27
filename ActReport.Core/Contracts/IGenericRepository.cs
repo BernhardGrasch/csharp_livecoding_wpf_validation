@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Threading.Tasks;
 
 namespace ActReport.Core.Contracts
 {
@@ -16,7 +17,7 @@ namespace ActReport.Core.Contracts
         /// <param name="orderBy"></param>
         /// <param name="includeProperties"></param>
         /// <returns></returns>
-        TEntity[] Get(Expression<Func<TEntity, bool>> filter = null,
+        Task<TEntity[]> GetAsync(Expression<Func<TEntity, bool>> filter = null,
             Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>> orderBy = null,
             string includeProperties = "");
 
@@ -25,13 +26,13 @@ namespace ActReport.Core.Contracts
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        TEntity GetById(object id);
+        Task<TEntity> GetByIdAsync(object id);
 
         /// <summary>
         /// Fügt neue Identität zum Datenbestand hinzu
         /// </summary>
         /// <param name="entity"></param>
-        void Insert(TEntity entity);
+        Task InsertAsync(TEntity entity);
 
         /// <summary>
         ///     Entität per primary key löschen
@@ -59,13 +60,13 @@ namespace ActReport.Core.Contracts
         /// <param name="filter"></param>
         /// <param name="includeProperties"></param>
         /// <returns></returns>
-        int Count(Expression<Func<TEntity, bool>> filter = null,
+        Task<int> CountAsync(Expression<Func<TEntity, bool>> filter = null,
             string includeProperties = "");
 
         /// <summary>
         ///     Liste von Entities einfügen
         /// </summary>
         /// <param name="entities"></param>
-        void InsertMany(IEnumerable<TEntity> entities);
+        Task InsertManyAsync(IEnumerable<TEntity> entities);
     }
 }

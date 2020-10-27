@@ -4,6 +4,8 @@ using ActReport.Persistence;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 using System.Windows.Input;
 
 namespace ActReport.ViewModel
@@ -34,7 +36,7 @@ namespace ActReport.ViewModel
         if (_cmdSaveActivityCommand == null)
         {
           _cmdSaveActivityCommand = new RelayCommand(
-            execute: _ => SaveNewActivity(),
+            execute: async _ => await SaveNewActivity(),
             canExecute: _ => IsSaveAllowed());
         }
 
@@ -44,7 +46,7 @@ namespace ActReport.ViewModel
 
     private bool IsSaveAllowed() => IsValid;
 
-    private void SaveNewActivity()
+    private async Task SaveNewActivity()
     {
       Validate();
 
@@ -55,13 +57,13 @@ namespace ActReport.ViewModel
 
         Activity.Employee_Id = _employee.Id;
         Activity.ActivityText = ActivityText;
-        uow.ActivityRepository.Insert(Activity);
+        await uow.ActivityRepository.InsertAsync(Activity);
 
         #endregion
 
         try
         {
-          uow.Save();
+          await uow.SaveAsync();
         }
         catch (ValidationException validationException)
         {
