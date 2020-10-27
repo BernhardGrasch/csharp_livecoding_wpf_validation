@@ -2,6 +2,10 @@
 using ActReport.Core.Entities;
 using ActReport.Persistence;
 using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Input;
 
 namespace ActReport.ViewModel
@@ -20,7 +24,6 @@ namespace ActReport.ViewModel
       {
         _activityText = value;
         OnPropertyChanged();
-        //Validate();
       }
     }
 
@@ -32,7 +35,7 @@ namespace ActReport.ViewModel
         if (_cmdSaveActivityCommand == null)
         {
           _cmdSaveActivityCommand = new RelayCommand(
-            execute: _ => SaveNewActivity(),
+            execute: async _ => await SaveNewActivity(),
             canExecute: _ => IsSaveAllowed());
         }
 
@@ -40,20 +43,20 @@ namespace ActReport.ViewModel
       }
     }
 
-    private bool IsSaveAllowed() => !string.IsNullOrEmpty(_activityText);
+    private bool IsSaveAllowed() => IsValid;
 
-    private void SaveNewActivity()
+    private async Task SaveNewActivity()
     {
       using IUnitOfWork uow = new UnitOfWork();
       #region UoW-Code
 
       Activity.Employee_Id = _employee.Id;
       Activity.ActivityText = ActivityText;
-      uow.ActivityRepository.Insert(Activity);
+      await uow.ActivityRepository.InsertAsync(Activity);
 
       #endregion
 
-      uow.Save();
+      await uow.SaveAsync();
 
       _controller.CloseWindow(this);
     }
@@ -82,21 +85,12 @@ namespace ActReport.ViewModel
         EndTime = DateTime.Now.Date.AddHours(16)
       };
 
-      //Validate();
+      Validate();
     }
 
-    //public override IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
-    //{
-    //  if (!string.IsNullOrEmpty(ActivityText) && ActivityText.Length <= 3)
-    //  {
-    //    yield return new ValidationResult("Der Name der Aktivität muss mind. 3 Zeichen lang sein!", new string[] { "ActivityText" });
-    //  }
-
-    //  if (string.IsNullOrEmpty(ActivityText))
-    //  {
-    //    yield return new ValidationResult("Der Name der Aktivität muss angegeben werden!", new string[] { "ActivityText" });
-    //  }
-
-    //}
+    public override IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+    {
+      return Enumerable.Empty<ValidationResult>();
+    }
   }
 }

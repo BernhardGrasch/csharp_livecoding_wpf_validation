@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 
 namespace ActReport.ViewModel
 {
@@ -11,7 +12,7 @@ namespace ActReport.ViewModel
 
     public override IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
     {
-      return new ValidationResult[0];
+      return Enumerable.Empty<ValidationResult>();
     }
 
   }

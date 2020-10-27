@@ -1,16 +1,17 @@
 ﻿using ActReport.Persistence;
 using System;
+using System.Threading.Tasks;
 
 namespace ActReport.ConsoleFillDb
 {
   class Program
   {
-    private static void Main()
+    static async Task Main()
     {
       using UnitOfWork uow = new UnitOfWork();
 
-      uow.FillDb();
-      var res = uow.EmployeeRepository.Get();
+      await uow.FillDbAsync();
+      var res = await uow.EmployeeRepository.GetAsync();
       foreach (var emp in res)
       {
         Console.WriteLine(emp.LastName);

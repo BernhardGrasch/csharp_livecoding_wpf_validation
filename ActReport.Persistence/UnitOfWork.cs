@@ -4,6 +4,8 @@ using ActReport.Core.Entities;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using System.ComponentModel.DataAnnotations;
+using System.Threading.Tasks;
+using System.Runtime.CompilerServices;
 
 namespace ActReport.Persistence
 {
@@ -39,36 +41,27 @@ namespace ActReport.Persistence
       //AddressRepository = new AddressRepository(_context);
     }
 
-    public void Save()
+    public async Task SaveAsync()
     {
       var entities = _context.ChangeTracker.Entries()
           .Where(entity => entity.State == EntityState.Added
                            || entity.State == EntityState.Modified)
           .Select(e => e.Entity);
+      
       foreach (var entity in entities)
       {
-        ValidateEntity(entity);
+        await ValidateEntityAsync (entity);
       }
-      _context.SaveChanges();
+
+      await _context.SaveChangesAsync();
     }
 
     /// <summary>
     /// Validierungen durchführen
     /// </summary>
     /// <param name="entity"></param>
-    private void ValidateEntity(object entity)
+    private async Task ValidateEntityAsync(object entity)
     {
-      if (entity is Activity activity)
-      {
-        if (_context.Activities.Any(a => a.Id != activity.Id 
-              && a.Employee_Id == activity.Employee_Id
-              && a.ActivityText == activity.ActivityText))
-        {
-          throw new ValidationException(
-            $"Der Mitarbeiter hat bereits eine derartige Aktivität eingebucht!", 
-            null, new string[] { "ActivityName" });
-        }
-      }
     }
 
     public void Dispose()
@@ -89,38 +82,28 @@ namespace ActReport.Persistence
       _disposed = true;
     }
 
-    public void DeleteDatabase()
+    public async Task DeleteDatabaseAsync()
     {
-      _context.Database.EnsureDeleted();
+      await _context.Database.EnsureDeletedAsync();
     }
 
-    public void MigrateDatabase()
+    public async Task MigrateDatabaseAsync()
     {
-      try
-      {
-        _context.Database.Migrate();
-      }
-      catch (Exception ex)
-      {
-
-        throw ex;
-      }
+        await _context.Database.MigrateAsync();
     }
 
-    public void FillDb()
+    public async Task FillDbAsync()
     {
-
-      DeleteDatabase();
-      MigrateDatabase();
-
+      await DeleteDatabaseAsync();
+      await MigrateDatabaseAsync();
 
       Employee emp = new Employee() { FirstName = "Max", LastName = "Mustermann" };
       _context.Employees.Add(emp);
       _context.Employees.Add(new Employee() { FirstName = "Sarah", LastName = "Aigner" });
       _context.Activities.Add(new Activity() { ActivityText = "Vorbereitung Schulung", Date = Convert.ToDateTime("10.10.2017"), StartTime = DateTime.Parse("01.01.1900 12:00:00"), EndTime = DateTime.Parse("01.01.1900 14:00:00"), Employee = emp });
       _context.Activities.Add(new Activity() { ActivityText = "Durchführung Schulung", Date = Convert.ToDateTime("10.10.2017"), StartTime = DateTime.Parse("01.01.1900 14:00:00"), EndTime = DateTime.Parse("01.01.1900 17:00:00"), Employee = emp });
-      _context.SaveChanges();
-
+      
+      await _context.SaveChangesAsync();
     }
 
   }

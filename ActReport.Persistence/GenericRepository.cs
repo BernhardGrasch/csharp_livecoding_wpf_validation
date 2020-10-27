@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Threading.Tasks;
 
 namespace ActReport.Persistence
 {
@@ -39,7 +40,7 @@ namespace ActReport.Persistence
         /// <param name="orderBy"></param>
         /// <param name="includeProperties"></param>
         /// <returns></returns>
-        public virtual TEntity[] Get(Expression<Func<TEntity, bool>> filter = null,
+        public async virtual Task<TEntity[]> GetAsync(Expression<Func<TEntity, bool>> filter = null,
             Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>> orderBy = null,
             string includeProperties = "")
         {
@@ -58,7 +59,7 @@ namespace ActReport.Persistence
             {
                 return orderBy(query).ToArray();
             }
-            return query.ToArray();
+            return await query.ToArrayAsync();
         }
 
         /// <summary>
@@ -66,14 +67,14 @@ namespace ActReport.Persistence
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        public virtual TEntity GetById(object id)
+        public async virtual Task<TEntity> GetByIdAsync(object id)
         {
-            return _dbSet.Find(id);
+            return await _dbSet.FindAsync(id);
         }
 
-        public virtual void Insert(TEntity entity)
+        public async virtual Task InsertAsync(TEntity entity)
         {
-            _dbSet.Add(entity);
+           await  _dbSet.AddAsync(entity);
         }
 
         /// <summary>
@@ -142,7 +143,7 @@ namespace ActReport.Persistence
         /// <param name="filter"></param>
         /// <param name="includeProperties"></param>
         /// <returns></returns>
-        public int Count(Expression<Func<TEntity, bool>> filter = null,
+        public async Task<int> CountAsync(Expression<Func<TEntity, bool>> filter = null,
             string includeProperties = "")
         {
             IQueryable<TEntity> query = _dbSet;
@@ -156,7 +157,7 @@ namespace ActReport.Persistence
             {
                 query = query.Include(includeProperty);
             }
-            return query.Count();
+            return await query.CountAsync();
         }
 
         /// <summary>
@@ -164,9 +165,9 @@ namespace ActReport.Persistence
         ///     Enormer Performancegewinn im Vergleich zum Einfügen einzelner Sätze
         /// </summary>
         /// <param name="entities"></param>
-        public void InsertMany(IEnumerable<TEntity> entities)
+        public async Task InsertManyAsync(IEnumerable<TEntity> entities)
         {
-            _dbSet.AddRange(entities);
+            await _dbSet.AddRangeAsync(entities);
         }
 
         /// <summary>

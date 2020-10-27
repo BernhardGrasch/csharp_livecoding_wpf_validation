@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Input;
 
 namespace ActReport.ViewModel
@@ -78,14 +79,14 @@ namespace ActReport.ViewModel
 
     public EmployeeViewModel(IController controller) : base(controller)
     {
-      LoadEmployees();
+      LoadEmployeesAsync().GetAwaiter().GetResult();
     }
 
-    private void LoadEmployees()
+    private async Task LoadEmployeesAsync()
     {
       using IUnitOfWork uow = new UnitOfWork();
-      var employees = uow.EmployeeRepository
-        .Get(orderBy: (coll) => coll.OrderBy(emp => emp.LastName))
+      var employees = (await uow.EmployeeRepository
+        .GetAsync(orderBy: (coll) => coll.OrderBy(emp => emp.LastName)))
         .ToList();
 
       Employees = new ObservableCollection<Employee>(employees);
@@ -100,15 +101,15 @@ namespace ActReport.ViewModel
         if (_cmdSaveChanges == null)
         {
           _cmdSaveChanges = new RelayCommand(
-            execute: _ =>
+            execute: async _ =>
             {
               using IUnitOfWork uow = new UnitOfWork();
               _selectedEmployee.FirstName = _firstName;
               _selectedEmployee.LastName = _lastName;
               uow.EmployeeRepository.Update(_selectedEmployee);
-              uow.Save();
+              await uow.SaveAsync();
 
-              LoadEmployees();
+              await LoadEmployeesAsync();
             },
             canExecute: _ => _selectedEmployee != null);
         }
@@ -120,7 +121,7 @@ namespace ActReport.ViewModel
 
     public override IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
     {
-      return new ValidationResult[0];
+      return Enumerable.Empty<ValidationResult>();
     }
   }
 }

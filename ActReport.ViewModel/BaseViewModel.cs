@@ -8,21 +8,21 @@ using System.Runtime.CompilerServices;
 
 namespace ActReport.ViewModel
 {
-  public abstract class BaseViewModel : INotifyPropertyChanged//, INotifyDataErrorInfo, IValidatableObject
+  public abstract class BaseViewModel : INotifyPropertyChanged, INotifyDataErrorInfo, IValidatableObject
   {
     protected readonly IController _controller;
 
-    //// Validation
-    //private bool _hasErrors;
-    //private bool _isValid;
-    //private bool _isChanged;
-    //protected readonly Dictionary<string, List<string>> Errors; // Verwaltung der Fehlermeldungen für die Properties
-    //private string _dbError;
+    // Validation
+    private bool _hasErrors;
+    private bool _isValid;
+    private bool _isChanged;
+    protected readonly Dictionary<string, List<string>> Errors; // Verwaltung der Fehlermeldungen für die Properties
+    private string _dbError;
 
     public BaseViewModel(IController controller)
     {
       _controller = controller;
-      //Errors = new Dictionary<string, List<string>>();
+      Errors = new Dictionary<string, List<string>>();
     }
 
     #region INotifyPropertyChanged
@@ -36,128 +36,128 @@ namespace ActReport.ViewModel
 
     #endregion
 
-    //#region Validation
+    #region Validation
 
-    //// Validation in Wrapper-Basisklasse auslagern!
+    // Validation in Wrapper-Basisklasse auslagern!
 
-    ///// <summary>
-    ///// Aufruf der Validierung aller Properties.
-    ///// Muss aufgerufen werden, wenn sich ein Property ändert
-    ///// "Alte" Fehler werden wieder gemeldet (gelöscht und angelegt)
-    /////     Zuerst Errors löschen und UI verständigen
-    /////     ValidationResults und ValidationContext anlegen
-    /////     Über Validator ganzes Objekt validieren
-    /////     Aus ValidationResults fehlerhafte Properties "distinct" ermitteln
-    /////     Für jedes Property Fehlermeldungen in Errors abspeichern
-    /////         und Notification für ErrorsChanged für Property auslösen
-    /////     HasErrors und IsValid ==> Notification
-    ///// </summary>
-    //protected void Validate()
-    //{
-    //  ClearErrors(); // alte Fehlermeldungen löschen
-    //  var validationResults = new List<ValidationResult>();
-    //  var validationContext = new ValidationContext(this);
+    /// <summary>
+    /// Aufruf der Validierung aller Properties.
+    /// Muss aufgerufen werden, wenn sich ein Property ändert
+    /// "Alte" Fehler werden wieder gemeldet (gelöscht und angelegt)
+    ///     Zuerst Errors löschen und UI verständigen
+    ///     ValidationResults und ValidationContext anlegen
+    ///     Über Validator ganzes Objekt validieren
+    ///     Aus ValidationResults fehlerhafte Properties "distinct" ermitteln
+    ///     Für jedes Property Fehlermeldungen in Errors abspeichern
+    ///         und Notification für ErrorsChanged für Property auslösen
+    ///     HasErrors und IsValid ==> Notification
+    /// </summary>
+    protected void Validate()
+    {
+      ClearErrors(); // alte Fehlermeldungen löschen
+      var validationResults = new List<ValidationResult>();
+      var validationContext = new ValidationContext(this);
 
-    //  // Über die abstrakte Methode Validate(..) das konkrete ViewModel validieren
-    //  validationResults.AddRange(Validate(validationContext));
+      // Über die abstrakte Methode Validate(..) das konkrete ViewModel validieren
+      validationResults.AddRange(Validate(validationContext));
 
-    //  // Alle Validierungsattribute (DataAnnotations) validieren
-    //  Validator.TryValidateObject(this, validationContext, validationResults, true);
+      // Alle Validierungsattribute (DataAnnotations) validieren
+      Validator.TryValidateObject(this, validationContext, validationResults, true);
       
-    //  if (validationResults.Any())
-    //  {
-    //    // SelectMany "flacht" die Ergebnisse einer Collection of Collections aus
-    //    // Distinct sorgt dafür, dass jeder Propertyname nur einmal vorkommt
-    //    // (auch wenn er mehrere Fehler auslöst)
-    //    var propertyNames = validationResults.SelectMany(
-    //        validationResult => validationResult.MemberNames).Distinct().ToList();
-    //    // alle Fehlermeldungen aller Properties in Errors-Collection speichern
-    //    foreach (var propertyName in propertyNames)
-    //    {
-    //      Errors[propertyName] = validationResults
-    //          .Where(validationResult => validationResult.MemberNames.Contains(propertyName))
-    //          .Select(r => r.ErrorMessage)
-    //          .Distinct() // gleiche Fehlermeldungen unterdrücken
-    //          .ToList();
-    //      // UI verständigen, dass Fehler entdeckt wurden (etwas über Ziel geschossen)
-    //      ErrorsChanged?.Invoke(this, new DataErrorsChangedEventArgs(propertyName));
-    //    }
-    //  }
-    //  HasErrors = Errors.Any();
-    //  IsValid = Errors.Count == 0 && string.IsNullOrEmpty(DbError);
-    //}
+      if (validationResults.Any())
+      {
+        // SelectMany "flacht" die Ergebnisse einer Collection of Collections aus
+        // Distinct sorgt dafür, dass jeder Propertyname nur einmal vorkommt
+        // (auch wenn er mehrere Fehler auslöst)
+        var propertyNames = validationResults.SelectMany(
+            validationResult => validationResult.MemberNames).Distinct().ToList();
+        // alle Fehlermeldungen aller Properties in Errors-Collection speichern
+        foreach (var propertyName in propertyNames)
+        {
+          Errors[propertyName] = validationResults
+              .Where(validationResult => validationResult.MemberNames.Contains(propertyName))
+              .Select(r => r.ErrorMessage)
+              .Distinct() // gleiche Fehlermeldungen unterdrücken
+              .ToList();
+          // UI verständigen, dass Fehler entdeckt wurden (etwas über Ziel geschossen)
+          ErrorsChanged?.Invoke(this, new DataErrorsChangedEventArgs(propertyName));
+        }
+      }
+      HasErrors = Errors.Any();
+      IsValid = Errors.Count == 0 && string.IsNullOrEmpty(DbError);
+    }
 
-    ///// <summary>
-    ///// Fehlerliste löschen und Properties verständigen
-    ///// </summary>
-    //protected void ClearErrors()
-    //{
-    //  DbError = "";
-    //  foreach (var propertyName in Errors.Keys.ToList())
-    //  {
-    //    Errors.Remove(propertyName);
-    //    OnErrorsChanged(propertyName);
-    //  }
-    //}
+    /// <summary>
+    /// Fehlerliste löschen und Properties verständigen
+    /// </summary>
+    protected void ClearErrors()
+    {
+      DbError = "";
+      foreach (var propertyName in Errors.Keys.ToList())
+      {
+        Errors.Remove(propertyName);
+        OnErrorsChanged(propertyName);
+      }
+    }
 
-    ///// <summary>
-    ///// Fehlermeldungen für das Property zrückgeben
-    ///// </summary>
-    ///// <param name="propertyName"></param>
-    ///// <returns>Fehlermeldungen für das Property</returns>
-    //public IEnumerable GetErrors(string propertyName)
-    //{
-    //  return propertyName != null && Errors.ContainsKey(propertyName)
-    //      ? Errors[propertyName]
-    //      : Enumerable.Empty<string>();
-    //}
+    /// <summary>
+    /// Fehlermeldungen für das Property zrückgeben
+    /// </summary>
+    /// <param name="propertyName"></param>
+    /// <returns>Fehlermeldungen für das Property</returns>
+    public IEnumerable GetErrors(string propertyName)
+    {
+      return propertyName != null && Errors.ContainsKey(propertyName)
+          ? Errors[propertyName]
+          : Enumerable.Empty<string>();
+    }
 
-    ///// <summary>
-    ///// Gibt es derzeit im ViewModel Fehler
-    ///// Damit die Notification funktioniert, wird umständlich ein 
-    ///// echtes Property angelegt.
-    ///// </summary>
-    //public bool HasErrors
-    //{
-    //  get { return _hasErrors; }
-    //  set { _hasErrors = value; OnPropertyChanged(); }
-    //}
+    /// <summary>
+    /// Gibt es derzeit im ViewModel Fehler
+    /// Damit die Notification funktioniert, wird umständlich ein 
+    /// echtes Property angelegt.
+    /// </summary>
+    public bool HasErrors
+    {
+      get { return _hasErrors; }
+      set { _hasErrors = value; OnPropertyChanged(); }
+    }
 
-    ///// <summary>
-    ///// Sind alle Properties valide, gibt es in der Errorscollection keine Einträge
-    ///// </summary>
-    //public bool IsValid
-    //{
-    //  get { return _isValid; }
-    //  set { _isValid = value; OnPropertyChanged(); }
-    //}
+    /// <summary>
+    /// Sind alle Properties valide, gibt es in der Errors-Collection keine Einträge
+    /// </summary>
+    public bool IsValid
+    {
+      get { return _isValid; }
+      set { _isValid = value; OnPropertyChanged(); }
+    }
 
-    //public bool IsChanged
-    //{
-    //  get { return _isChanged; }
-    //  set { _isChanged = value; OnPropertyChanged(); }
-    //}
+    public bool IsChanged
+    {
+      get { return _isChanged; }
+      set { _isChanged = value; OnPropertyChanged(); }
+    }
 
-    //public String DbError
-    //{
-    //  get { return _dbError; }
-    //  set { _dbError = value; OnPropertyChanged(); }
-    //}
+    public String DbError
+    {
+      get { return _dbError; }
+      set { _dbError = value; OnPropertyChanged(); }
+    }
 
-    ///// <summary>
-    ///// Haben sich die Fehlermeldungen verändert?
-    ///// Verständigung des UI
-    ///// </summary>
-    //public event EventHandler<DataErrorsChangedEventArgs> ErrorsChanged;
+    /// <summary>
+    /// Haben sich die Fehlermeldungen verändert?
+    /// Verständigung des UI
+    /// </summary>
+    public event EventHandler<DataErrorsChangedEventArgs> ErrorsChanged;
 
-    //public abstract IEnumerable<ValidationResult> Validate(ValidationContext validationContext);
+    public abstract IEnumerable<ValidationResult> Validate(ValidationContext validationContext);
 
-    //protected virtual void OnErrorsChanged(string propertyName)
-    //{
-    //  ErrorsChanged?.Invoke(this, new DataErrorsChangedEventArgs(propertyName));
-    //}
+    protected virtual void OnErrorsChanged(string propertyName)
+    {
+      ErrorsChanged?.Invoke(this, new DataErrorsChangedEventArgs(propertyName));
+    }
 
-    //#endregion
+    #endregion
 
   }
 }
