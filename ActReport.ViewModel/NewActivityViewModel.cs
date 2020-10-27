@@ -2,8 +2,6 @@
 using ActReport.Core.Entities;
 using ActReport.Persistence;
 using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Windows.Input;
 
 namespace ActReport.ViewModel
@@ -22,7 +20,7 @@ namespace ActReport.ViewModel
       {
         _activityText = value;
         OnPropertyChanged();
-        Validate();
+        //Validate();
       }
     }
 
@@ -42,35 +40,22 @@ namespace ActReport.ViewModel
       }
     }
 
-    private bool IsSaveAllowed() => IsValid;
+    private bool IsSaveAllowed() => !string.IsNullOrEmpty(_activityText);
 
     private void SaveNewActivity()
     {
-      Validate();
+      using IUnitOfWork uow = new UnitOfWork();
+      #region UoW-Code
 
-      if (IsValid)
-      {
-        using IUnitOfWork uow = new UnitOfWork();
-        #region UoW-Code
+      Activity.Employee_Id = _employee.Id;
+      Activity.ActivityText = ActivityText;
+      uow.ActivityRepository.Insert(Activity);
 
-        Activity.Employee_Id = _employee.Id;
-        Activity.ActivityText = ActivityText;
-        uow.ActivityRepository.Insert(Activity);
+      #endregion
 
-        #endregion
+      uow.Save();
 
-        try
-        {
-          uow.Save();
-        }
-        catch (ValidationException validationException)
-        {
-          DbError = validationException.ValidationResult.ToString();
-          return;
-        }
-
-        _controller.CloseWindow(this);
-      }
+      _controller.CloseWindow(this);
     }
 
     private ICommand _cmdCloseWindowCommand;
@@ -97,21 +82,21 @@ namespace ActReport.ViewModel
         EndTime = DateTime.Now.Date.AddHours(16)
       };
 
-      Validate();
+      //Validate();
     }
 
-    public override IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
-    {
-      if (!string.IsNullOrEmpty(ActivityText) && ActivityText.Length <= 3)
-      {
-        yield return new ValidationResult("Der Name der Aktivität muss mind. 3 Zeichen lang sein!", new string[] { "ActivityText" });
-      }
+    //public override IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+    //{
+    //  if (!string.IsNullOrEmpty(ActivityText) && ActivityText.Length <= 3)
+    //  {
+    //    yield return new ValidationResult("Der Name der Aktivität muss mind. 3 Zeichen lang sein!", new string[] { "ActivityText" });
+    //  }
 
-      if (string.IsNullOrEmpty(ActivityText))
-      {
-        yield return new ValidationResult("Der Name der Aktivität muss angegeben werden!", new string[] { "ActivityText" });
-      }
+    //  if (string.IsNullOrEmpty(ActivityText))
+    //  {
+    //    yield return new ValidationResult("Der Name der Aktivität muss angegeben werden!", new string[] { "ActivityText" });
+    //  }
 
-    }
+    //}
   }
 }
