@@ -149,9 +149,11 @@ namespace ActReport.ViewModel
       }
     }
 
-    public override async Task InitAsync()
+    public static async Task<EmployeeViewModel> CreateAsync(IController controller)
     {
-      await LoadEmployeesAsync();
+      var viewModel = new EmployeeViewModel(controller);
+      await viewModel.LoadEmployeesAsync();
+      return viewModel;
     }
   }
 }
