@@ -64,14 +64,22 @@ namespace ActReport.ViewModel
         try
         {
           await uow.SaveAsync();
+          _controller.CloseWindow(this);
         }
         catch (ValidationException validationException)
         {
-          DbError = validationException.ValidationResult.ToString();
-          return;
+          if (validationException.Value is List<string> properties)
+          {
+            foreach (var property in properties)
+            {
+              AddErrorsToProperty(property, new List<string> { validationException.ValidationResult.ErrorMessage });
+            }
+          }
+          else
+          {
+            DbError = validationException.ValidationResult.ToString();
+          }
         }
-
-        _controller.CloseWindow(this);
       }
     }
 
