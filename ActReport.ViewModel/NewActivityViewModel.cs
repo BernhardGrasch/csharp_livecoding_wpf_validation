@@ -1,6 +1,7 @@
 ﻿using ActReport.Core.Contracts;
 using ActReport.Core.Entities;
 using ActReport.Persistence;
+using ActReport.ViewModel.Contracts;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;

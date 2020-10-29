@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using ActReport.ViewModel.Contracts;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 

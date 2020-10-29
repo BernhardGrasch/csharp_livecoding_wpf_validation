@@ -1,14 +1,16 @@
-﻿using System;
+﻿using ActReport.ViewModel.Contracts;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 
 namespace ActReport.ViewModel
 {
-  public abstract class BaseViewModel : INotifyPropertyChanged, INotifyDataErrorInfo, IValidatableObject
+  public abstract class BaseViewModel : INotifyPropertyChanged, INotifyDataErrorInfo, IValidatableObject, IViewModel
   {
     protected readonly IController _controller;
 
@@ -170,6 +172,15 @@ namespace ActReport.ViewModel
     protected virtual void OnErrorsChanged(string propertyName)
     {
       ErrorsChanged?.Invoke(this, new DataErrorsChangedEventArgs(propertyName));
+    }
+
+    #endregion
+
+    #region IViewModel Members
+
+    public virtual Task InitAsync()
+    {
+      return Task.CompletedTask;
     }
 
     #endregion

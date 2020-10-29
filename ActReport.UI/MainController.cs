@@ -1,4 +1,5 @@
 ﻿using ActReport.ViewModel;
+using ActReport.ViewModel.Contracts;
 using System;
 using System.Collections.Generic;
 using System.Windows;
