@@ -145,6 +145,21 @@ namespace ActReport.ViewModel
     }
 
     /// <summary>
+    /// Fügt dem Property Errormeldungen dazu.
+    /// Wird verwendet, wenn bei Prüfungen über die Datenbank
+    /// die Meldung beim Property ausgegeben werden soll.
+    /// </summary>
+    /// <param name="property"></param>
+    /// <param name="errors"></param>
+    public void AddErrorsToProperty(string property, List<string> errors)
+    {
+      Errors.Add(property, errors);
+      HasErrors = Errors.Any();
+      IsValid = Errors.Count == 0;
+      ErrorsChanged?.Invoke(this, new DataErrorsChangedEventArgs(property));
+    }
+
+    /// <summary>
     /// Haben sich die Fehlermeldungen verändert?
     /// Verständigung des UI
     /// </summary>

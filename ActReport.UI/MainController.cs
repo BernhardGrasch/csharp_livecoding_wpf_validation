@@ -15,7 +15,7 @@ namespace ActReport.UI
       _windows = new Dictionary<BaseViewModel, Window>();
     }
 
-    public void ShowWindow(BaseViewModel viewModel)
+    public void ShowWindow(BaseViewModel viewModel, bool showAsDialog)
     {
       Window window = viewModel switch
       {
@@ -34,7 +34,15 @@ namespace ActReport.UI
 
       _windows[viewModel] = window;
       window.DataContext = viewModel;
-      window.ShowDialog();
+
+      if (showAsDialog)
+      {
+        window.ShowDialog();
+      }
+      else
+      {
+        window.Show();
+      }
     }
 
     public void CloseWindow(BaseViewModel viewModel)
