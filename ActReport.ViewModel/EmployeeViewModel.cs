@@ -80,7 +80,13 @@ namespace ActReport.ViewModel
 
     public EmployeeViewModel(IController controller) : base(controller)
     {
-      LoadEmployeesAsync().GetAwaiter().GetResult();
+    }
+
+    public async static Task<EmployeeViewModel> CreateAsync(IController controller)
+    {
+      EmployeeViewModel viewModel = new EmployeeViewModel(controller);
+      await viewModel.LoadEmployeesAsync();
+      return viewModel;
     }
 
     private async Task LoadEmployeesAsync()

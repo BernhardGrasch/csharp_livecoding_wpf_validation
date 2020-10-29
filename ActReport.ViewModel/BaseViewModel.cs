@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace ActReport.ViewModel
 {
-  public abstract class BaseViewModel : INotifyPropertyChanged, INotifyDataErrorInfo, IValidatableObject, IViewModel
+  public abstract class BaseViewModel : INotifyPropertyChanged, INotifyDataErrorInfo, IValidatableObject
   {
     protected readonly IController _controller;
 
@@ -172,15 +172,6 @@ namespace ActReport.ViewModel
     protected virtual void OnErrorsChanged(string propertyName)
     {
       ErrorsChanged?.Invoke(this, new DataErrorsChangedEventArgs(propertyName));
-    }
-
-    #endregion
-
-    #region IViewModel Members
-
-    public virtual Task InitAsync()
-    {
-      return Task.CompletedTask;
     }
 
     #endregion
