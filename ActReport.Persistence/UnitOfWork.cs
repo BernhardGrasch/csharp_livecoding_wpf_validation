@@ -69,7 +69,7 @@ namespace ActReport.Persistence
         {
           throw new ValidationException(
             $"Der Mitarbeiter hat bereits eine derartige Aktivität eingebucht!", 
-            null, new string[] { "ActivityName" });
+            null, new string[] { "ActivityText" });
         }
       }
     }

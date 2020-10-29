@@ -87,7 +87,6 @@ namespace ActReport.ViewModel
 
     public EmployeeViewModel(IController controller) : base(controller)
     {
-      LoadEmployeesAsync().GetAwaiter().GetResult();
     }
 
     private async Task LoadEmployeesAsync()
@@ -148,6 +147,11 @@ namespace ActReport.ViewModel
           "Der Nachname darf keinen Doppelnamen enthalten!",
           new string[] { nameof(LastName) });
       }
+    }
+
+    public override async Task InitAsync()
+    {
+      await LoadEmployeesAsync();
     }
   }
 }

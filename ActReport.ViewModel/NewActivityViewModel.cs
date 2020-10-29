@@ -68,7 +68,7 @@ namespace ActReport.ViewModel
         }
         catch (ValidationException validationException)
         {
-          if (validationException.Value is List<string> properties)
+          if (validationException.Value is IEnumerable<string> properties)
           {
             foreach (var property in properties)
             {

@@ -12,7 +12,10 @@ namespace ActReport.UI
     private void Application_Startup(object sender, StartupEventArgs e)
     {
       IController controller = new MainController();
-      controller.ShowWindow(new EmployeeViewModel(controller));
+      EmployeeViewModel viewModel = new EmployeeViewModel(controller);
+      controller.ShowWindow(viewModel);
+
+      Dispatcher.Invoke(async () => await viewModel.InitAsync());
     }
   }
 }

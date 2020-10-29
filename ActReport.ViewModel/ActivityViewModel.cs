@@ -28,7 +28,7 @@ namespace ActReport.ViewModel
           _cmdNewActivityCommand = new RelayCommand(
             execute: async _ =>
             {
-              _controller.ShowWindow(new NewActivityViewModel(_controller, _employee));
+              _controller.ShowWindow(new NewActivityViewModel(_controller, _employee), true);
               await LoadActivitiesAsync();
             },
             canExecute: _ => true);
