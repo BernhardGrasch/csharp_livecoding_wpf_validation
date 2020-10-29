@@ -1,6 +1,7 @@
 ﻿using ActReport.Core.Contracts;
 using ActReport.Core.Entities;
 using ActReport.Persistence;
+using ActReport.ViewModel.Contacts;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
@@ -44,7 +45,7 @@ namespace ActReport.ViewModel
         if (_cmdEditActivityCommand == null)
         {
           _cmdEditActivityCommand = new RelayCommand(
-            execute: _ => _controller.ShowWindow(new EditActivityViewModel(_controller)),
+            execute: _ => _controller.ShowWindow(new EditActivityViewModel(_controller), true),
             canExecute: _ => CurrentActivity != null);
         }
         return _cmdEditActivityCommand;

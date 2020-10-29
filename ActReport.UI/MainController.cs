@@ -1,4 +1,5 @@
 ﻿using ActReport.ViewModel;
+using ActReport.ViewModel.Contacts;
 using System;
 using System.Collections.Generic;
 using System.Windows;

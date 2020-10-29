@@ -1,14 +1,16 @@
-﻿using System;
+﻿using ActReport.ViewModel.Contacts;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 
 namespace ActReport.ViewModel
 {
-  public abstract class BaseViewModel : INotifyPropertyChanged, INotifyDataErrorInfo, IValidatableObject
+  public abstract class BaseViewModel : INotifyPropertyChanged, INotifyDataErrorInfo, IValidatableObject, IViewModel
   {
     protected readonly IController _controller;
 
@@ -29,7 +31,7 @@ namespace ActReport.ViewModel
 
     public event PropertyChangedEventHandler PropertyChanged;
 
-    protected virtual void OnPropertyChanged([CallerMemberName]string propertyName = null)
+    protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
     {
       PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
@@ -63,7 +65,7 @@ namespace ActReport.ViewModel
 
       // Alle Validierungsattribute (DataAnnotations) validieren
       Validator.TryValidateObject(this, validationContext, validationResults, true);
-      
+
       if (validationResults.Any())
       {
         // SelectMany "flacht" die Ergebnisse einer Collection of Collections aus
@@ -138,7 +140,7 @@ namespace ActReport.ViewModel
       set { _isChanged = value; OnPropertyChanged(); }
     }
 
-    public String DbError
+    public string DbError
     {
       get { return _dbError; }
       set { _dbError = value; OnPropertyChanged(); }
@@ -170,6 +172,15 @@ namespace ActReport.ViewModel
     protected virtual void OnErrorsChanged(string propertyName)
     {
       ErrorsChanged?.Invoke(this, new DataErrorsChangedEventArgs(propertyName));
+    }
+
+    #endregion
+
+    #region IViewModel
+
+    public virtual Task InitAsync()
+    {
+      return Task.CompletedTask;
     }
 
     #endregion

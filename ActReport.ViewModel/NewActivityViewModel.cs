@@ -1,10 +1,10 @@
 ﻿using ActReport.Core.Contracts;
 using ActReport.Core.Entities;
 using ActReport.Persistence;
+using ActReport.ViewModel.Contacts;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows.Input;
 

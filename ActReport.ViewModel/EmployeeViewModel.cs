@@ -1,6 +1,7 @@
 ﻿using ActReport.Core.Contracts;
 using ActReport.Core.Entities;
 using ActReport.Persistence;
+using ActReport.ViewModel.Contacts;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -27,7 +28,7 @@ namespace ActReport.ViewModel
         if (_cmdEditActivities == null)
         {
           _cmdEditActivities = new RelayCommand(
-            execute: _ => _controller.ShowWindow(new ActivityViewModel(_controller, SelectedEmployee)),
+            execute: _ => _controller.ShowWindow(new ActivityViewModel(_controller, SelectedEmployee), true),
             canExecute: _ => SelectedEmployee != null);
         }
 

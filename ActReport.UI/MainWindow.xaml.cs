@@ -1,6 +1,4 @@
-﻿using ActReport.ViewModel;
-using System.Windows;
-using System.Windows.Input;
+﻿using System.Windows;
 
 namespace ActReport.UI
 {
