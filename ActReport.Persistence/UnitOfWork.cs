@@ -58,7 +58,6 @@ namespace ActReport.Persistence
     /// <summary>
     /// Validierungen durchführen
     /// </summary>
-    /// <param name="entity"></param>
     private async Task ValidateEntityAsync(object entity)
     {
       if (entity is Activity activity)
@@ -69,7 +68,9 @@ namespace ActReport.Persistence
         {
           throw new ValidationException(
             $"Der Mitarbeiter hat bereits eine derartige Aktivität eingebucht!", 
-            null, new string[] { "ActivityText" });
+            null, 
+            value: null /* könnte auch die Auflistung der Properties sein 
+                         * für welche die Validierungsnachricht angezeigt werden soll */);
         }
       }
     }
