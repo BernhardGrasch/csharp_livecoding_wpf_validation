@@ -57,9 +57,26 @@ namespace ActReport.ViewModel
 
       #endregion
 
-      await uow.SaveAsync();
+      try
+      {
+        await uow.SaveAsync();
 
-      _controller.CloseWindow(this);
+        _controller.CloseWindow(this);
+      }
+      catch (ValidationException validationException)
+      {
+        if (validationException.Value is IEnumerable<string> properties)
+        {
+          foreach (var propertyName in properties)
+          {
+            AddErrorsToProperty(propertyName, new List<string> { validationException.ValidationResult.ErrorMessage });
+          }
+        }
+        else
+        {
+          DbError = validationException.ValidationResult.ToString();
+        }
+      }
     }
 
     private ICommand _cmdCloseWindowCommand;

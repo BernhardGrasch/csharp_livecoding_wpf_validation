@@ -36,6 +36,9 @@ namespace ActReport.ViewModel
       }
     }
 
+    [Required(ErrorMessage = "Der Vorname ist ein Pflichtfeld!", AllowEmptyStrings = false)]
+    [MinLength(2, ErrorMessage = "Der Vorname muss mind. 2 Zeichen lang sein!")]
+    [MaxLength(50, ErrorMessage = "Der Vorname darf max. 50 Zeichen lang sein!")]
     public string FirstName
     {
       get => _firstName;
@@ -43,9 +46,12 @@ namespace ActReport.ViewModel
       {
         _firstName = value;
         OnPropertyChanged(nameof(FirstName));
+        Validate();
       }
     }
 
+    [MinLength(3, ErrorMessage = "Der Nachname muss mind. 3 Zeichen lang sein!")]
+    [MaxLength(75, ErrorMessage = "Der Nachname darf max. 75 Zeichen lang sein!")]
     public string LastName
     {
       get => _lastName;
@@ -53,6 +59,7 @@ namespace ActReport.ViewModel
       {
         _lastName = value;
         OnPropertyChanged(nameof(LastName));
+        Validate();
       }
     }
 
@@ -80,6 +87,7 @@ namespace ActReport.ViewModel
 
     public EmployeeViewModel(IController controller) : base(controller)
     {
+      Validate();
     }
 
     public async static Task<EmployeeViewModel> CreateAsync(IController controller)
@@ -128,7 +136,32 @@ namespace ActReport.ViewModel
 
     public override IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
     {
-      return Enumerable.Empty<ValidationResult>();
+      //if (string.IsNullOrEmpty(FirstName))
+      //{
+      //  yield return new ValidationResult(
+      //    "Der Vorname ist ein Pflichtfeld!",
+      //    new string[] { nameof(FirstName) });
+      //}
+
+      if (string.IsNullOrEmpty(LastName))
+      {
+        yield return new ValidationResult(
+          "Der Nachname ist ein Pflichtfeld!",
+          new string[] { nameof(LastName) });
+      }
+      else if (LastName.Contains("-"))
+      {
+        yield return new ValidationResult(
+          "Der Nachname darf keinen Doppelnamen enthalten!",
+          new string[] { nameof(LastName) });
+      }
+
+      if (!string.IsNullOrEmpty(LastName) && LastName.Contains("+"))
+      {
+        yield return new ValidationResult(
+          "Der Nachname darf kein Plus enthalten!",
+          new string[] { nameof(LastName) });
+      }
     }
   }
 }

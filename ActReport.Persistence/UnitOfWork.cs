@@ -1,11 +1,10 @@
-﻿using System;
-using ActReport.Core.Contracts;
+﻿using ActReport.Core.Contracts;
 using ActReport.Core.Entities;
 using Microsoft.EntityFrameworkCore;
-using System.Linq;
+using System;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using System.Threading.Tasks;
-using System.Runtime.CompilerServices;
 
 namespace ActReport.Persistence
 {
@@ -47,10 +46,10 @@ namespace ActReport.Persistence
           .Where(entity => entity.State == EntityState.Added
                            || entity.State == EntityState.Modified)
           .Select(e => e.Entity);
-      
+
       foreach (var entity in entities)
       {
-        await ValidateEntityAsync (entity);
+        await ValidateEntityAsync(entity);
       }
 
       await _context.SaveChangesAsync();
@@ -62,6 +61,23 @@ namespace ActReport.Persistence
     /// <param name="entity"></param>
     private async Task ValidateEntityAsync(object entity)
     {
+      if (entity is Activity activity)
+      {
+        if (await _context.Activities.AnyAsync(a => a.Id != activity.Id
+         && a.Employee_Id == activity.Employee_Id
+         && a.ActivityText == activity.ActivityText))
+        {
+          // Fehlermeldung wird direkt beim Property "ActivityText" angezeigt
+          //throw new ValidationException(
+          //  "Der Mitarbeiter hat bereits eine derartige Aktivität eingebucht!",
+          //  null, new string[] { "ActivityText" });
+
+          // Fehlermeldung wird als allgemeine Meldung per DbError angezeigt
+          throw new ValidationException(
+            "Der Mitarbeiter hat bereits eine derartige Aktivität eingebucht!",
+            null, null);
+        }
+      }
     }
 
     public void Dispose()
@@ -89,7 +105,7 @@ namespace ActReport.Persistence
 
     public async Task MigrateDatabaseAsync()
     {
-        await _context.Database.MigrateAsync();
+      await _context.Database.MigrateAsync();
     }
 
     public async Task FillDbAsync()
@@ -102,7 +118,7 @@ namespace ActReport.Persistence
       _context.Employees.Add(new Employee() { FirstName = "Sarah", LastName = "Aigner" });
       _context.Activities.Add(new Activity() { ActivityText = "Vorbereitung Schulung", Date = Convert.ToDateTime("10.10.2017"), StartTime = DateTime.Parse("01.01.1900 12:00:00"), EndTime = DateTime.Parse("01.01.1900 14:00:00"), Employee = emp });
       _context.Activities.Add(new Activity() { ActivityText = "Durchführung Schulung", Date = Convert.ToDateTime("10.10.2017"), StartTime = DateTime.Parse("01.01.1900 14:00:00"), EndTime = DateTime.Parse("01.01.1900 17:00:00"), Employee = emp });
-      
+
       await _context.SaveChangesAsync();
     }
 
